@@ -138,23 +138,36 @@ MODAL BAŞLANGIC*@
         $("#txtDescription").val('');
     }
     function deleteCategory(categoryId) {
-        if (confirm("Silmek istediğinizden emin misiniz ?")) {
-            var veri = {
-                categoryId: categoryId
-            };
-            $.ajax({
-                type: "POST",
-                url: "Category/Delete",
-                data: veri,
-                success: function (res) {
-                    DataTable.ajax.reload();
-                    toastr.error('Kategori başarıyla silinmiştir.', 'silindi !');
-                }
-            });
-        }
+
+        Swal.fire({
+            title: 'Emin misiniz?',
+            text: "Silinen verilerinizi kaybedeceksiniz.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'SIL!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var veri = {
+                    categoryId: categoryId
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "Category/Delete",
+                    data: veri,
+                    success: function (res) {
+                        DataTable.ajax.reload();
+                    }
+                });
+                Swal.fire(
+                    'SILINDI!',
+                    'Kategori basariyla silindi.',
+                    'success'
+                )
+            }
+        })
     }
-
-
     function editCategory(categoryId) {
         $("#modalEdit").modal('show');
         var data = {
@@ -184,7 +197,7 @@ MODAL BAŞLANGIC*@
                             $("#modalEdit").modal('hide');
                         }
                     });
-               });
+                });
             }
         });
     }
