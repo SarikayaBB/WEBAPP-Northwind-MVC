@@ -1,0 +1,40 @@
+﻿<table class="table table-striped table-hover table-borderless align-middle" id="categoryTable">
+    <thead class="table-light">
+        <tr>
+            <th>Order ID</th>
+            <th>Product ID</th>
+            <th>Product Name</th>
+            <th>Extended Price</th>
+            <th>İşlemler</th>
+
+
+        </tr>
+    </thead>
+
+    <tbody class="table-group-divider">
+
+     
+
+
+
+    </tbody>
+
+</table>
+<span>Toplam Katgeori Sayısı: @Model.Count</span>
+<script>
+    $(document).ready(function () {
+        $('#categoryTable').DataTable({
+            ajax: '@Url.Action("GetAllJson")',
+            columns: [
+                { data: 'orderId' },
+                { data: 'productId' },
+                { data: 'productName' },
+                { data: 'extendedPrice' },
+                
+               
+              
+               
+            ]
+        });
+    });
+</script>

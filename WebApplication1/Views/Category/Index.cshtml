@@ -1,0 +1,191 @@
+﻿
+<div class="table-responsive-md">
+    @if (TempData["success"] != null)
+    {
+        <h1>@TempData["success"]</h1>
+    }
+    <a class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalCreate">Create</a>
+    <button id="btnExcelExport" class="btn btn-info">Excel</button>
+    <table class="table table-striped table-hover table-borderless align-middle" id="categoryTable">
+        <thead class="table-light">
+            <tr>
+                <th>Category ID</th>
+                <th>Category Name</th>
+                <th>Description</th>
+                <th>Operations</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+        </tbody>
+    </table>
+</div>
+@*
+MODAL BAŞLANGIC*@
+<div class="modal fade" id="modalCreate" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleId">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+
+                    <div class="mb-3 row">
+                        <label class="col-4 col-form-label">Name</label>
+                        <div class="col-8">
+                            <input type="text" class="form-control" id="txtName" placeholder="Name">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-4 col-form-label">Description</label>
+                        <div class="col-8">
+                            <input type="text" class="form-control" id="txtDescription" placeholder="Description">
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="btnCreate" class="btn btn-primary">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*MODAL BİTİŞ*@
+<!-- Modal EDIT -->
+<div class="modal fade" id="modalEdit" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleId">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="mb-3 row">
+                        <label class="col-4 col-form-label">Name</label>
+                        <div class="col-8">
+                            <input type="text" id="txtEditName" class="form-control" placeholder="Name">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-4 col-form-label">Description</label>
+                        <div class="col-8">
+                            <input type="text" id="txtEditDescription" class="form-control" placeholder="Description">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="btnEdit" class="btn btn-primary">Edit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var DataTable;
+    $(document).ready(function () {
+        DataTable = $('#categoryTable').DataTable({
+            ajax: "Category/GetAll",
+            columns: [
+                { data: 'categoryId' },
+                { data: 'categoryName' },
+                { data: 'description' },
+                {
+                    data: 'categoryId', render: function (data, type) {
+                        return `<a onClick="deleteCategory(${data})" class="btn btn-danger">Sil</a><a class="btn btn-primary" onClick="editCategory(${data})">Edit</a>`;
+                    }
+                }
+            ]
+        });
+        $("#btnExcelExport").click(function () {
+            $("#categoryTable").table2excel({
+                exclude: ".haricTut",
+                name: "Kategoriler",
+                filename: "Kategoriler.xls", // do include extension
+                preserveColors: false // set to true if you want background colors and font colors preserved
+            });
+        });
+        $("#btnCreate").click(function () {
+            var veri = {
+                categoryName: $("#txtName").val(),
+                description: $("#txtDescription").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "Category/Create",
+                data: veri,
+                success: function (res) {
+                    modalCreateHide();
+                }
+            });
+        });
+    });
+    function modalCreateHide() {
+        $("#modalCreate").modal('hide');
+        toastr.success('Yeni kategori başarıyla eklenmiştir.', 'Başarılı !');
+        DataTable.ajax.reload();
+        $("#txtName").val('');
+        $("#txtDescription").val('');
+    }
+    function deleteCategory(categoryId) {
+        if (confirm("Silmek istediğinizden emin misiniz ?")) {
+            var veri = {
+                categoryId: categoryId
+            };
+            $.ajax({
+                type: "POST",
+                url: "Category/Delete",
+                data: veri,
+                success: function (res) {
+                    DataTable.ajax.reload();
+                    toastr.error('Kategori başarıyla silinmiştir.', 'silindi !');
+                }
+            });
+        }
+    }
+    function editCategory(categoryId) {
+        $("#modalEdit").modal('show');
+        var data = {
+            categoryId: categoryId
+        }
+        $.ajax({
+            type: "POST",
+            url: "Category/GetById",
+            data: data,
+            success: function (res) {
+                $("#txtEditName").val(res.categoryName);
+                $("#txtEditDescription").val(res.description);
+
+                $("#btnEdit").click(function () {
+                    var data = {
+                        categoryName: $("#txtEditName").val(),
+                        description: $("#txtEditDescription").val(),
+                        categoryId: categoryId
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: "Category/Edit",
+                        data: data,
+                        success: function () {
+                            if (confirm("Duzenlemek istediğinizden emin misiniz ?")) {
+                                DataTable.ajax.reload();
+                                toastr.success('Kategori basariyla duzenlendi.', 'DUZENLENDI !');
+                                $("#modalEdit").modal('hide');
+                            }
+                        }
+                    });
+                });
+
+            }
+        });
+    }
+</script>
+

@@ -1,0 +1,13 @@
+﻿<script type="text/javascript">
+    toastr.options.progressBar = true;
+    toastr.options.showMethod = 'slideDown';
+    toastr.options.positionClass = 'toast-top-center';
+
+</script>
+
+@if (TempData["success"] != null)
+{
+    <script>
+        toastr.success('@TempData["success"]', 'Başarılı !');
+    </script>
+}
