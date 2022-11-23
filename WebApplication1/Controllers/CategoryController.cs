@@ -57,8 +57,8 @@ namespace WebApplication1.Controllers
         {
 
             Category foundCat = _db.Categories.Find(categoryId);
-            foundCat.CategoryName = categoryName;
-            foundCat.Description = description;
+            foundCat.CategoryName = categoryName.ToString();
+            foundCat.Description = description.ToString();
             _db.SaveChanges();
             return Results.Accepted(categoryId + " ID'li kategori Duzenleme işlemi başarıyla tamamlanmıştır");
         }

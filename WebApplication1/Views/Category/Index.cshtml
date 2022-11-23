@@ -92,6 +92,7 @@ MODAL BAŞLANGIC*@
 <script>
     var DataTable;
     $(document).ready(function () {
+
         DataTable = $('#categoryTable').DataTable({
             ajax: "Category/GetAll",
             columns: [
@@ -114,6 +115,7 @@ MODAL BAŞLANGIC*@
             });
         });
         $("#btnCreate").click(function () {
+            $("#btnCreate").unbind();
             var veri = {
                 categoryName: $("#txtName").val(),
                 description: $("#txtDescription").val()
@@ -151,6 +153,8 @@ MODAL BAŞLANGIC*@
             });
         }
     }
+
+
     function editCategory(categoryId) {
         $("#modalEdit").modal('show');
         var data = {
@@ -163,8 +167,8 @@ MODAL BAŞLANGIC*@
             success: function (res) {
                 $("#txtEditName").val(res.categoryName);
                 $("#txtEditDescription").val(res.description);
-
                 $("#btnEdit").click(function () {
+                    $("#btnEdit").unbind();
                     var data = {
                         categoryName: $("#txtEditName").val(),
                         description: $("#txtEditDescription").val(),
@@ -175,15 +179,12 @@ MODAL BAŞLANGIC*@
                         url: "Category/Edit",
                         data: data,
                         success: function () {
-                            if (confirm("Duzenlemek istediğinizden emin misiniz ?")) {
-                                DataTable.ajax.reload();
-                                toastr.success('Kategori basariyla duzenlendi.', 'DUZENLENDI !');
-                                $("#modalEdit").modal('hide');
-                            }
+                            DataTable.ajax.reload();
+                            toastr.success('Kategori basariyla duzenlendi.', 'DUZENLENDI !');
+                            $("#modalEdit").modal('hide');
                         }
                     });
-                });
-
+               });
             }
         });
     }
